@@ -21,7 +21,7 @@ class Program:
         on_setattr=attr.setters.validate)
     running: Any = attr.ib(default=True)
     screen: Any = attr.ib(default=None)
-    image: str = attr.ib(default="./assets/test_image_02.jpg")
+    image: str = attr.ib(default="./assets/test_image_04.jpg")
 
     def __attrs_post_init__(self):
         pygame.init()
@@ -38,10 +38,14 @@ class Program:
         img_cmyk = image.convert('CMYK')
         pixel_data = img_cmyk.load()
 
+        step = 0
         while self.running:
-            self.run_program_loop(image, pixel_data)
+            self.run_program_loop(image, pixel_data, step)
+            step += 1
+            if step > 98:
+                self.running = False
 
-    def run_program_loop(self, image, pixel_data):
+    def run_program_loop(self, image, pixel_data, step):
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
@@ -51,8 +55,8 @@ class Program:
                 self.screen_width = self.screen.get_width()
 
         self.screen.fill('#FFFFFF')
-        RADIUS = 5
-        density = 10
+        RADIUS = 3
+        density = 100 - step
 
         draw_radius = image.width + image.height
         num_of_circles = int(np.ceil(draw_radius / density))
@@ -80,7 +84,7 @@ class Program:
 
                     cyan, magenta, yellow, black = pixel_data[int(round(x_image_pixel)), int(round(y_image_pixel))]
                     if index == 0:
-                        my_color = black
+                        my_color = (cyan + yellow + magenta) / 3
                     elif index == 1:
                         my_color = cyan
                     elif index == 2:
