@@ -48,21 +48,27 @@ class Program:
                 self.screen_width = self.screen.get_width()
 
         self.screen.fill('#FFFFFF')
-        RADIUS = 20
+        RADIUS = 2
+        density = 50
+
+        draw_radius = max(image.width, image.height)
+        num_of_circles = int(np.ceil(draw_radius / density))
 
         print(image.width)
 
         colors = [(0, 0, 0, 128), (0, 255, 255, 128), (255, 255, 0, 128), (255, 0, 255, 128)]
         circle_surfaces = []
         for color, index in zip(colors, [0, 1, 2, 3]):
-            for i in range(5):
-                for j in range(7):
+            for i in range(num_of_circles):
+                for j in range(num_of_circles):
+                    my_i = i - (num_of_circles / 2)
+                    my_j = j - (num_of_circles / 2)
                     angle = index * -0.3926875  # radiens
-                    x = i * np.cos(angle) - j * np.sin(angle)
-                    y = i * np.sin(angle) + j * np.cos(angle)
+                    x = my_i * np.cos(angle) - my_j * np.sin(angle)
+                    y = my_i * np.sin(angle) + my_j * np.cos(angle)
                     circle_surface = pygame.Surface((2 * RADIUS, 2 * RADIUS), pygame.SRCALPHA)
                     pygame.draw.circle(circle_surface, color, (RADIUS, RADIUS), RADIUS)
-                    circle_surfaces.append((circle_surface, (600 + x * 80, 400 + y * 80)))
+                    circle_surfaces.append((circle_surface, (600 + x * 10, 400 + y * 10)))
 
         for circle_surface, position in circle_surfaces:
             self.screen.blit(circle_surface, position)
