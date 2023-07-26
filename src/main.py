@@ -48,10 +48,10 @@ class Program:
                 self.screen_width = self.screen.get_width()
 
         self.screen.fill('#FFFFFF')
-        RADIUS = 2
-        density = 50
+        RADIUS = 3
+        density = 20
 
-        draw_radius = max(image.width, image.height)
+        draw_radius = image.width + image.height
         num_of_circles = int(np.ceil(draw_radius / density))
 
         print(image.width)
@@ -66,9 +66,24 @@ class Program:
                     angle = index * -0.3926875  # radiens
                     x = my_i * np.cos(angle) - my_j * np.sin(angle)
                     y = my_i * np.sin(angle) + my_j * np.cos(angle)
+
+                    # find where on the image the point is
+                    x_image_pixel = x * density + image.width / 2
+                    y_image_pixel = y * density + image.height / 2
+
+                    # remove points outside of image
+                    if x_image_pixel < 0 or x_image_pixel > image.width:
+                        continue
+                    if y_image_pixel < 0 or y_image_pixel > image.height:
+                        continue
+
                     circle_surface = pygame.Surface((2 * RADIUS, 2 * RADIUS), pygame.SRCALPHA)
                     pygame.draw.circle(circle_surface, color, (RADIUS, RADIUS), RADIUS)
-                    circle_surfaces.append((circle_surface, (600 + x * 10, 400 + y * 10)))
+                    scaling = min(self.screen_height * 0.8 / image.height, self.screen_width * 0.8 / image.width)
+                    circle_surfaces.append((
+                        circle_surface,
+                        (self.screen_width / 2 + x * 20 * scaling, self.screen_height / 2 + y * 20 * scaling))
+                    )
 
         for circle_surface, position in circle_surfaces:
             self.screen.blit(circle_surface, position)
