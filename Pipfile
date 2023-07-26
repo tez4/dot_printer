@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pygame = "*"
+mypy = "*"
+attrs = "*"
+opencv-python = "*"
+pillow = "*"
+pygame-widgets = "*"
+scipy = "*"
+
+[dev-packages]
+autopep8 = "*"
+flake8 = "*"
+ipykernel = "*"
+
+[requires]
+python_version = "3.10"

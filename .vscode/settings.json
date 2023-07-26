@@ -1,0 +1,54 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.mypyEnabled": false,
+    "python.linting.flake8Args": [
+        "--max-line-length=120",
+        "--ignore=F401"  // "--ignore=E402,F841,F401,E302,E305",
+    ],
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": ["--max-line-length", "200", "--experimental"],
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true
+    },
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": false
+    },
+    "editor.fontSize": 13,
+    "editor.renderWhitespace": "trailing",
+    "editor.rulers": [120],
+    "workbench.colorCustomizations": {
+        "editorRuler.foreground": "#37373d",
+        "activityBar.activeBackground": "#535ba5",
+        "activityBar.background": "#535ba5",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#402023",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#535ba5",
+        "statusBar.background": "#424883",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#535ba5",
+        "statusBarItem.remoteBackground": "#424883",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#424883",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#42488399",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "autoDocstring.docstringFormat": "google",
+    "errorLens.enabled": true,
+    "errorLens.messageBackgroundMode": "message",
+    "errorLens.excludeBySource": ["cSpell"],
+    "cSpell.language": "en,de-de",
+    "cSpell.words": [
+        "jupyter",
+        "pipenv"
+    ],
+    "peacock.color": "#424883",
+    "notebook.formatOnSave.enabled": true,
+}
