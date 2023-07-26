@@ -2,6 +2,7 @@ import attr
 import math
 import pygame
 import random
+import colorsys
 import numpy as np
 import pygame_widgets
 from typing import Union, Optional, Any
@@ -20,7 +21,7 @@ class Program:
         on_setattr=attr.setters.validate)
     running: Any = attr.ib(default=True)
     screen: Any = attr.ib(default=None)
-    image: str = attr.ib(default="./assets/test_image_04.jpg")
+    image: str = attr.ib(default="./assets/test_image_02.jpg")
 
     def __attrs_post_init__(self):
         pygame.init()
@@ -34,11 +35,13 @@ class Program:
         icon = pygame.image.load("./assets/spaceship.png")
         pygame.display.set_icon(icon)
         image = Image.open(self.image)
+        img_cmyk = image.convert('CMYK')
+        pixel_data = img_cmyk.load()
 
         while self.running:
-            self.run_program_loop(image)
+            self.run_program_loop(image, pixel_data)
 
-    def run_program_loop(self, image):
+    def run_program_loop(self, image, pixel_data):
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
@@ -48,13 +51,11 @@ class Program:
                 self.screen_width = self.screen.get_width()
 
         self.screen.fill('#FFFFFF')
-        RADIUS = 3
-        density = 20
+        RADIUS = 5
+        density = 10
 
         draw_radius = image.width + image.height
         num_of_circles = int(np.ceil(draw_radius / density))
-
-        print(image.width)
 
         colors = [(0, 0, 0, 128), (0, 255, 255, 128), (255, 255, 0, 128), (255, 0, 255, 128)]
         circle_surfaces = []
@@ -72,17 +73,37 @@ class Program:
                     y_image_pixel = y * density + image.height / 2
 
                     # remove points outside of image
-                    if x_image_pixel < 0 or x_image_pixel > image.width:
+                    if x_image_pixel < 0 or x_image_pixel >= image.width - 1:
                         continue
-                    if y_image_pixel < 0 or y_image_pixel > image.height:
+                    if y_image_pixel < 0 or y_image_pixel >= image.height - 1:
                         continue
 
+                    cyan, magenta, yellow, black = pixel_data[int(round(x_image_pixel)), int(round(y_image_pixel))]
+                    if index == 0:
+                        my_color = black
+                    elif index == 1:
+                        my_color = cyan
+                    elif index == 2:
+                        my_color = yellow
+                    else:
+                        my_color = magenta
+
+                    my_color /= 255
+
                     circle_surface = pygame.Surface((2 * RADIUS, 2 * RADIUS), pygame.SRCALPHA)
-                    pygame.draw.circle(circle_surface, color, (RADIUS, RADIUS), RADIUS)
-                    scaling = min(self.screen_height * 0.8 / image.height, self.screen_width * 0.8 / image.width)
+                    scaling = min(
+                        self.screen_height * 0.8 / image.height, self.screen_width * 0.8 / image.width
+                    ) * density
+                    circle_size = 0.2
+                    pygame.draw.circle(
+                        circle_surface,
+                        color,
+                        (RADIUS * my_color * scaling * circle_size, RADIUS * my_color * scaling * circle_size),
+                        RADIUS * my_color * scaling * circle_size
+                    )
                     circle_surfaces.append((
                         circle_surface,
-                        (self.screen_width / 2 + x * 20 * scaling, self.screen_height / 2 + y * 20 * scaling))
+                        (self.screen_width / 2 + x * scaling, self.screen_height / 2 + y * scaling))
                     )
 
         for circle_surface, position in circle_surfaces:
