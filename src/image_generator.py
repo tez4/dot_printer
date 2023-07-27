@@ -27,13 +27,44 @@ def draw_image(image):
         'magenta': (245, 10, 245)
     }
     circles = [(425, 600, 50, 'magenta'), (450, 600, 50, 'cyan'), (475, 600, 50, 'black'), (400, 600, 50, 'yellow')]
+    circles = get_circle_data(image, colors)
+    print(f'Circles: {len(circles)}')
 
-    for i in range(image.width):
-        for j in range(image.height):
-            for circle in circles:
+    for circle_number, circle in enumerate(circles):
+        for i in range(max(int(circle[0] - circle[2]), 0), min(int(circle[0] + circle[2]), image.width)):
+            for j in range(max(int(circle[1] - circle[2]), 0), min(int(circle[1] + circle[2]), image.height)):
                 draw_circle(img, i, j, circle, colors)
-
+        print(f'{circle_number + 1} / {len(circles)} circles drawn.')
     img.show()
+
+
+def get_circle_data(image, colors):
+    circles = []
+    density = 50
+    draw_radius = image.width + image.height
+    num_of_circles = int(np.ceil(draw_radius / density))
+    for direction_index, color in enumerate(colors.keys()):
+        for i in range(num_of_circles):
+            for j in range(num_of_circles):
+                my_i = i - (num_of_circles / 2)
+                my_j = j - (num_of_circles / 2)
+                angle = - direction_index * 22.5 * np.pi / 180
+                x = my_i * np.cos(angle) - my_j * np.sin(angle)
+                y = my_i * np.sin(angle) + my_j * np.cos(angle)
+
+                # find where on the image the point is
+                x_image_pixel = x * density + image.width / 2
+                y_image_pixel = y * density + image.height / 2
+
+                # remove points outside of image
+                if x_image_pixel < 0 or x_image_pixel >= image.width:
+                    continue
+                if y_image_pixel < 0 or y_image_pixel >= image.height:
+                    continue
+
+                circles.append((x_image_pixel, y_image_pixel, density / 3, color))
+
+    return circles
 
 
 def draw_circle(img, i, j, circle, colors):
