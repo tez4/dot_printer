@@ -1,6 +1,7 @@
 import attr
 import math
 import random
+import datetime
 import colorsys
 import numpy as np
 from typing import Union, Optional, Any
@@ -9,11 +10,12 @@ from PIL import Image, ImageDraw, ImageFont
 
 def main():
     image = read_image()
-    draw_image(image, density=5)
+    draw_image(image, density=10)
 
 
-def read_image(name="./assets/test_image_03.jpg"):
+def read_image(name="./assets/test_image_04.jpg", size_increase=2):
     image = Image.open(name)
+    image = image.resize((image.width * size_increase, image.height * size_increase))
     return image
 
 
@@ -36,6 +38,7 @@ def draw_image(image, density):
                 draw_circle(img, i, j, circle, colors)
         print(f'{circle_number + 1} / {len(circles)} circles drawn.')
     img.show()
+    img.save(f'./output/{random.randint(1,100000)}.jpg')
 
 
 def rgb_to_cmyk(r, g, b):
@@ -96,7 +99,9 @@ def get_circle_data(image, colors, density):
                 else:
                     color_size = magenta
 
-                circles.append((x_image_pixel, y_image_pixel, density * color_size / 100, color))
+                color_size = ((color_size / 100) ** 0.5) / 1.5
+
+                circles.append((x_image_pixel, y_image_pixel, density * color_size, color))
 
     return circles
 
