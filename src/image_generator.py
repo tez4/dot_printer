@@ -9,15 +9,15 @@ from PIL import Image, ImageDraw, ImageFont
 
 def main():
     image = read_image()
-    draw_image(image)
+    draw_image(image, density=5)
 
 
-def read_image(name="./assets/test_image_04.jpg"):
+def read_image(name="./assets/test_image_03.jpg"):
     image = Image.open(name)
     return image
 
 
-def draw_image(image):
+def draw_image(image, density):
     img = Image.new('RGB', (image.width, image.height), color='#FFFFFF')
 
     colors = {
@@ -27,7 +27,7 @@ def draw_image(image):
         'magenta': (245, 10, 245)
     }
     circles = [(425, 600, 50, 'magenta'), (450, 600, 50, 'cyan'), (475, 600, 50, 'black'), (400, 600, 50, 'yellow')]
-    circles = get_circle_data(image, colors)
+    circles = get_circle_data(image, colors, density)
     print(f'Circles: {len(circles)}')
 
     for circle_number, circle in enumerate(circles):
@@ -38,9 +38,32 @@ def draw_image(image):
     img.show()
 
 
-def get_circle_data(image, colors):
+def rgb_to_cmyk(r, g, b):
+    CMYK_SCALE = 100
+    RGB_SCALE = 255
+
+    if (r, g, b) == (0, 0, 0):
+        # black
+        return 0, 0, 0, CMYK_SCALE
+
+    # rgb [0,255] -> cmy [0,1]
+    c = 1 - r / RGB_SCALE
+    m = 1 - g / RGB_SCALE
+    y = 1 - b / RGB_SCALE
+
+    # extract out k [0, 1]
+    min_cmy = min(c, m, y)
+    c = (c - min_cmy) / (1 - min_cmy)
+    m = (m - min_cmy) / (1 - min_cmy)
+    y = (y - min_cmy) / (1 - min_cmy)
+    k = min_cmy
+
+    # rescale to the range [0,CMYK_SCALE]
+    return c * CMYK_SCALE, m * CMYK_SCALE, y * CMYK_SCALE, k * CMYK_SCALE
+
+
+def get_circle_data(image, colors, density):
     circles = []
-    density = 50
     draw_radius = image.width + image.height
     num_of_circles = int(np.ceil(draw_radius / density))
     for direction_index, color in enumerate(colors.keys()):
@@ -62,7 +85,18 @@ def get_circle_data(image, colors):
                 if y_image_pixel < 0 or y_image_pixel >= image.height:
                     continue
 
-                circles.append((x_image_pixel, y_image_pixel, density / 3, color))
+                rgb_color = image.getpixel((x_image_pixel, y_image_pixel))
+                cyan, magenta, yellow, black = rgb_to_cmyk(*rgb_color)
+                if direction_index == 0:
+                    color_size = black
+                elif direction_index == 1:
+                    color_size = cyan
+                elif direction_index == 2:
+                    color_size = yellow
+                else:
+                    color_size = magenta
+
+                circles.append((x_image_pixel, y_image_pixel, density * color_size / 100, color))
 
     return circles
 
@@ -80,7 +114,7 @@ def draw_circle(img, i, j, circle, colors):
         if old_color == (255, 255, 255):
             img.putpixel((i, j), new_color)
         else:
-            mixed_color = tuple([min(x) for x in zip(old_color, new_color)])
+            mixed_color = tuple([255 - min((255 - x) + (255 - y), 255) for x, y in zip(old_color, new_color)])
             img.putpixel((i, j), mixed_color)
 
 
