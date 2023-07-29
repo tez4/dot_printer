@@ -12,6 +12,8 @@ pillow = "*"
 pygame-widgets = "*"
 scipy = "*"
 svgwrite = "*"
+cairosvg = "*"
+pycairo = "*"
 
 [dev-packages]
 autopep8 = "*"

@@ -1,16 +1,19 @@
 import attr
 import math
 import random
+# import cairosvg
 import datetime
 import colorsys
+import svgwrite
 import numpy as np
+from io import BytesIO
 from typing import Union, Optional, Any
 from PIL import Image, ImageDraw, ImageFont
 
 
 def main():
     image = read_image(size_increase=1)
-    draw_image(image, density=20, mode='jpg')
+    draw_image(image, density=20, mode='svg')
 
 
 def read_image(name="./assets/test_image_04.jpg", size_increase=2):
@@ -40,6 +43,26 @@ def draw_image(image, density, mode='jpg'):
             print(f'{circle_number + 1} / {len(circles)} circles drawn.')
         img.show()
         img.save(f'./output/{random.randint(1,100000)}.jpg')
+    elif mode == 'svg':
+
+        # write svg images
+        svg_images = {}
+        for color in colors.keys():
+            svg_images[color] = svgwrite.Drawing(f'./output/{color}.svg', (image.width, image.height))
+        for circle in circles:
+            svg_images[circle[3]].add(
+                svgwrite.shapes.Circle(
+                    center=(circle[0], circle[1]),
+                    r=circle[2],
+                    fill=svgwrite.rgb(*colors[circle[3]])
+                )
+            )
+        for svg in svg_images.values():
+            svg.save()
+
+        # convert to jpg
+        # png_data = cairosvg.svg2png(url="./output/magenta.svg")
+        # image = Image.open(BytesIO(png_data))
 
 
 def rgb_to_cmyk(r, g, b):
