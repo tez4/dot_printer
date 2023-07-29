@@ -12,11 +12,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 def main():
-    image = read_image(size_increase=1)
-    draw_image(image, density=20, mode='svg')
+    image = read_image(size_increase=4)
+    draw_image(image, density=20, mode='jpg')
 
 
-def read_image(name="./assets/test_image_04.jpg", size_increase=2):
+def read_image(name="./assets/test_image_03.jpg", size_increase=2):
     image = Image.open(name)
     image = image.resize((image.width * size_increase, image.height * size_increase))
     return image
@@ -35,14 +35,33 @@ def draw_image(image, density, mode='jpg'):
     print(f'Circles: {len(circles)}')
 
     if mode == 'jpg':
-        img = Image.new('RGB', (image.width, image.height), color='#FFFFFF')
+        jpg_images = {}
+        jpg_draws = {}
+        for color in colors.keys():
+            img = Image.new('RGB', (image.width, image.height), color='#FFFFFF')
+            jpg_images[color] = img
+            jpg_draws[color] = ImageDraw.Draw(img)
         for circle_number, circle in enumerate(circles):
-            for i in range(max(int(circle[0] - circle[2]), 0), min(int(circle[0] + circle[2]), image.width)):
-                for j in range(max(int(circle[1] - circle[2]), 0), min(int(circle[1] + circle[2]), image.height)):
-                    draw_circle(img, i, j, circle, colors)
+            upper_left = (circle[0] - circle[2], circle[1] - circle[2])
+            lower_right = (circle[0] + circle[2], circle[1] + circle[2])
+            jpg_draws[circle[3]].ellipse([upper_left, lower_right], fill=circle[3])
             print(f'{circle_number + 1} / {len(circles)} circles drawn.')
-        img.show()
-        img.save(f'./output/{random.randint(1,100000)}.jpg')
+
+        image = np.ones_like(np.array(jpg_images['black']), dtype=np.float64)
+        for color in colors.keys():
+            image *= np.array(jpg_images[color]) / 255
+
+        image *= 255
+        pil_image = Image.fromarray(image.astype(np.uint8))
+        name = f'./output/{random.randint(1,100000)}.jpg'
+        pil_image.save(name)
+        print(f'Done! Saved image as {name}')
+
+        # for i in range(max(int(circle[0] - circle[2]), 0), min(int(circle[0] + circle[2]), image.width)):
+        #     for j in range(max(int(circle[1] - circle[2]), 0), min(int(circle[1] + circle[2]), image.height)):
+        #         draw_circle(img, i, j, circle, colors)
+        # img.show()
+
     elif mode == 'svg':
 
         # write svg images
