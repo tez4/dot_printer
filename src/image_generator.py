@@ -9,8 +9,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 def main():
-    image = read_image()
-    draw_image(image, density=10)
+    image = read_image(size_increase=1)
+    draw_image(image, density=20, mode='jpg')
 
 
 def read_image(name="./assets/test_image_04.jpg", size_increase=2):
@@ -19,8 +19,7 @@ def read_image(name="./assets/test_image_04.jpg", size_increase=2):
     return image
 
 
-def draw_image(image, density):
-    img = Image.new('RGB', (image.width, image.height), color='#FFFFFF')
+def draw_image(image, density, mode='jpg'):
 
     colors = {
         'black': (10, 10, 10),
@@ -28,17 +27,19 @@ def draw_image(image, density):
         'yellow': (245, 245, 10),
         'magenta': (245, 10, 245)
     }
-    circles = [(425, 600, 50, 'magenta'), (450, 600, 50, 'cyan'), (475, 600, 50, 'black'), (400, 600, 50, 'yellow')]
+    # circles = [(425, 600, 50, 'magenta'), (450, 600, 50, 'cyan'), (475, 600, 50, 'black'), (400, 600, 50, 'yellow')]
     circles = get_circle_data(image, colors, density)
     print(f'Circles: {len(circles)}')
 
-    for circle_number, circle in enumerate(circles):
-        for i in range(max(int(circle[0] - circle[2]), 0), min(int(circle[0] + circle[2]), image.width)):
-            for j in range(max(int(circle[1] - circle[2]), 0), min(int(circle[1] + circle[2]), image.height)):
-                draw_circle(img, i, j, circle, colors)
-        print(f'{circle_number + 1} / {len(circles)} circles drawn.')
-    img.show()
-    img.save(f'./output/{random.randint(1,100000)}.jpg')
+    if mode == 'jpg':
+        img = Image.new('RGB', (image.width, image.height), color='#FFFFFF')
+        for circle_number, circle in enumerate(circles):
+            for i in range(max(int(circle[0] - circle[2]), 0), min(int(circle[0] + circle[2]), image.width)):
+                for j in range(max(int(circle[1] - circle[2]), 0), min(int(circle[1] + circle[2]), image.height)):
+                    draw_circle(img, i, j, circle, colors)
+            print(f'{circle_number + 1} / {len(circles)} circles drawn.')
+        img.show()
+        img.save(f'./output/{random.randint(1,100000)}.jpg')
 
 
 def rgb_to_cmyk(r, g, b):
@@ -99,7 +100,7 @@ def get_circle_data(image, colors, density):
                 else:
                     color_size = magenta
 
-                color_size = ((color_size / 100) ** 0.5) / 1.5
+                color_size = ((color_size / 100) ** 0.5) / 2
 
                 circles.append((x_image_pixel, y_image_pixel, density * color_size, color))
 
